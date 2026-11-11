@@ -1,0 +1,32 @@
+10:31:29.265 [SERVER-sin] escuchando en: 8765
+
+=== ANTES (sin) idempotencia ===
+SELECT id, producto, cantidad, clave FROM pedidos;
+Total de filas en pedidos: 0
+SELECT clave, resultado FROM operaciones;
+10:31:30.003 [CLIENTE] intento 1/3 clave=None
+10:31:30.060 [SERVER-sin] recibida solicitud clave=None body={'producto': 'Notebook', 'cantidad': 1}
+10:31:30.103 [SERVER-sin] pedido GUARDADO {'pedido_id': 1, 'estado': 'creado'}. Simulo demora de 5s antes de responder...
+10:31:32.064 [CLIENTE] TIMEOUT/ERROR (timed out)
+10:31:32.064 [CLIENTE] espero 1s (backoff) y reintento
+10:31:33.065 [CLIENTE] intento 2/3 clave=None
+10:31:33.067 [SERVER-sin] recibida solicitud clave=None body={'producto': 'Notebook', 'cantidad': 1}
+10:31:33.121 [SERVER-sin] pedido GUARDADO {'pedido_id': 2, 'estado': 'creado'}. Simulo demora de 5s antes de responder...
+10:31:35.067 [CLIENTE] TIMEOUT/ERROR (timed out)
+10:31:35.067 [CLIENTE] espero 2s (backoff) y reintento
+10:31:35.105 [SERVER-sin] no pude responder: el cliente ya cerro la conexion
+10:31:37.068 [CLIENTE] intento 3/3 clave=None
+10:31:37.091 [SERVER-sin] recibida solicitud clave=None body={'producto': 'Notebook', 'cantidad': 1}
+10:31:37.109 [SERVER-sin] pedido GUARDADO {'pedido_id': 3, 'estado': 'creado'}. Simulo demora de 5s antes de responder...
+10:31:38.122 [SERVER-sin] no pude responder: el cliente ya cerro la conexion
+10:31:39.101 [CLIENTE] TIMEOUT/ERROR (timed out)
+10:31:39.102 [CLIENTE] reintentos agotados: el cliente cree que FALLO
+10:31:42.111 [SERVER-sin] no pude responder: el cliente ya cerro la conexion
+
+=== DESPUES (sin idempotencia) ===
+SELECT id, producto, cantidad, clave FROM pedidos;
+(1, 'Notebook', 1, None)
+(2, 'Notebook', 1, None)
+(3, 'Notebook', 1, None)
+Total de filas en pedidos: 3
+SELECT clave, resultado FROM operaciones;
